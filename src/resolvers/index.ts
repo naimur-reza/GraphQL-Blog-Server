@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { IUser } from "../interface";
 
 const prisma = new PrismaClient();
 
@@ -12,7 +13,7 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createUser: async (parent: any, args: any, context: any) => {
+    createUser: async (parent: any, args: IUser, context: any) => {
       return await prisma.user.create({
         data: args,
       });
