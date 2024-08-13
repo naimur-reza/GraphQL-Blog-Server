@@ -1,9 +1,10 @@
 import { IUser } from "../../interface";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { prisma } from "../../utils";
 
 export const Mutation = {
-  createUser: async (parent: any, args: IUser, { prisma }: any) => {
+  createUser: async (parent: any, args: IUser, content: any) => {
     const hashPassword = bcrypt.hashSync(args.password, 10);
 
     const data = await prisma.user.create({
@@ -24,7 +25,7 @@ export const Mutation = {
     };
   },
 
-  loginUser: async (parent: any, args: IUser, { prisma }: any) => {
+  loginUser: async (parent: any, args: IUser, content: any) => {
     const user = await prisma.user.findUnique({
       where: {
         email: args.email,
@@ -49,5 +50,23 @@ export const Mutation = {
       data: user,
       token,
     };
+  },
+
+  createPost: async (parent: any, args: any, { userInfo }: any) => {
+    if (!userInfo) {
+      throw new Error("Unauthorized");
+    }
+
+    const data = await prisma.posts.create({
+      data: {
+        authorId: userInfo.userId,
+        title: args.title,
+        content: args.content,
+        published: false,
+      },
+    });
+    console.log(data, userInfo);
+
+    return data;
   },
 };
